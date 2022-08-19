@@ -22,7 +22,10 @@ MAX_RUNNING = 8
 
 QC_REFERENCE = environ["QC_REFERENCE"]
 
-SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s > {out_dir}/%s'
+# SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s > {out_dir}/%s'
+SAMTOOLS_BASE = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s'
+IVAR_BASE = 'ivar consensus -p {out_dir}/%s -m 10 -t 0.5 -n N'
+COMBINED_CMD = f'{SAMTOOLS_BASE} | {IVAR_BASE}'
 
 
 def get_ref():
@@ -35,7 +38,7 @@ def _generate_commands(trimmed_sorted_bams, reference, out_dir):
     """Helper function to generate commands and facilite testing"""
     files = trimmed_sorted_bams
 
-    cmd = SAMTOOLS_CMD
+    cmd = COMBINED_CMD
     command = cmd.format(reference=reference, out_dir=out_dir)
 
     out_files = []

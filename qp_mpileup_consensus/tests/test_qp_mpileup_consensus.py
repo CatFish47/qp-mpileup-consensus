@@ -18,7 +18,7 @@ from functools import partial
 from qp_mpileup_consensus import plugin
 from qp_mpileup_consensus.utils import plugin_details
 from qp_mpileup_consensus.qp_mpileup_consensus import (
-    get_ref, _generate_commands, mpileup_consensus_to_array, QC_REFERENCE, SAMTOOLS_CMD)
+    get_ref, _generate_commands, mpileup_consensus_to_array, QC_REFERENCE, COMBINED_CMD)
 
 
 class SamtoolsMpileupTests(PluginTestCase):
@@ -57,7 +57,7 @@ class SamtoolsMpileupTests(PluginTestCase):
         trimmed_sorted_bams = ['trimmed1.sorted.bam', 'trimmed2.sorted.bam']
         obs = _generate_commands(trimmed_sorted_bams, params['reference'],
                                  params['out_dir'])
-        cmd = SAMTOOLS_CMD.format(**params)
+        cmd = COMBINED_CMD.format(**params)
         ecmds = [cmd % (bam, bam) for bam in trimmed_sorted_bams]
         eof = [(f'{params["out_dir"]}/{bam}', 'pileupped')
                for bam in trimmed_sorted_bams]
