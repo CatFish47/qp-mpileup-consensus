@@ -63,8 +63,11 @@ class SamtoolsMpileupTests(PluginTestCase):
             bam = bam_gz[:-3]
             fname = "%s_consensus.fa" % bam_gz.split(".")[0]
             ecmds.append(cmd % (bam_gz, bam, fname))
-        eof = [(f'{params["out_dir"]}/{"%s_consensus.fa" % bam.split(".")[0]}', 'FASTA')
-               for bam in trimmed_sorted_bams]
+        eof = []
+        for bam in trimmed_sorted_bams:
+            fname = "%s_consensus.fa" % bam.split(".")[0]
+            fp = f'{params["out_dir"]}/{fname}'
+            eof.append((fp, 'FASTA'))
         self.assertCountEqual(obs[0], ecmds)
         self.assertCountEqual(obs[1], eof)
 

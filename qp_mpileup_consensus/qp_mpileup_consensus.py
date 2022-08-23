@@ -21,7 +21,7 @@ MAX_RUNNING = 8
 
 QC_REFERENCE = environ["QC_REFERENCE"]
 
-# SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0 
+# SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0
 # --reference {reference} %s > {out_dir}/%s'
 GUNZIP_CMD = 'gunzip %s'
 SAMTOOLS_BASE = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s'
@@ -121,7 +121,9 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
         The paths of the main_qsub_fp, finish_qsub_fp, out_files_fp
     """
 
-    reference = join(QC_REFERENCE, params['reference'])
+    # TODO: do something later with params['reference']
+    ref_file = get_ref()
+    reference = join(QC_REFERENCE, ref_file)
 
     df = pd.read_csv(prep_info, sep='\t', dtype='str',
                      na_values=[], keep_default_na=True)
