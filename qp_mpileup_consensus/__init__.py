@@ -35,7 +35,7 @@ default_params = {
 #     default_params[name] = {'reference': db, 'threads': THREADS}
 
 mpileup_consensus_cmd = QiitaCommand(
-    'mpileup and consensus', "Samtools mpileup and ivar consensus",
+    'Mpileup and consensus', "Samtools mpileup and ivar consensus",
     mpileup_consensus, req_params, opt_params, outputs, default_params)
 
 plugin.register_command(mpileup_consensus_cmd)

@@ -10,7 +10,6 @@ import pandas as pd
 from os import environ
 from os.path import basename, join
 from glob import glob
-from itertools import zip_longest
 
 from qiita_client import ArtifactInfo
 

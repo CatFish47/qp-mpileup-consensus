@@ -12,7 +12,6 @@ from os.path import exists, isdir, join, dirname
 from shutil import rmtree, copyfile
 from tempfile import mkdtemp
 from json import dumps
-from itertools import zip_longest
 from functools import partial
 
 from qp_mpileup_consensus import plugin
