@@ -30,7 +30,7 @@ class SamtoolsMpileupTests(PluginTestCase):
         self.out_dir = out_dir
         self.ref = get_ref()
         self.ref_path = QC_REFERENCE
-        self.params = {'reference': 'covid-ref', 'threads': 2}
+        self.params = {'reference': 'covid-ref'}
         self._clean_up_files = []
         self._clean_up_files.append(out_dir)
 
@@ -57,8 +57,7 @@ class SamtoolsMpileupTests(PluginTestCase):
         trimmed_sorted_bams = ['trimmed1.sorted.bam', 'trimmed2.sorted.bam']
         obs = _generate_commands(trimmed_sorted_bams, params['reference'],
                                  params['out_dir'])
-        cmd = COMBINED_CMD.format(
-            nprocs=params['nprocs'], out_dir_a=params['out_dir'], out_dir_b=params['out_dir'])
+        cmd = COMBINED_CMD.format(**params)
         ecmds = []
         for bam_gz in trimmed_sorted_bams:
             bam = bam_gz[:-3]
