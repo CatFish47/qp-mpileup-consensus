@@ -21,7 +21,8 @@ MAX_RUNNING = 8
 
 QC_REFERENCE = environ["QC_REFERENCE"]
 
-# SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s > {out_dir}/%s'
+# SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0 
+# --reference {reference} %s > {out_dir}/%s'
 GUNZIP_CMD = 'gunzip %s'
 SAMTOOLS_BASE = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s'
 IVAR_BASE = 'ivar consensus -p {out_dir}/%s -m 10 -t 0.5 -n N'
@@ -120,6 +121,8 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
         The paths of the main_qsub_fp, finish_qsub_fp, out_files_fp
     """
 
+    reference = join(QC_REFERENCE, params['reference'])
+
     df = pd.read_csv(prep_info, sep='\t', dtype='str',
                      na_values=[], keep_default_na=True)
     df.set_index('sample_name', inplace=True)
@@ -129,7 +132,7 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
     # Note that for processing we don't actually need the run_prefix so
     # we are not going to use it and simply loop over the ordered
     # fwd_seqs/rev_seqs
-    commands, out_files = _generate_commands(files['tgz'], params['reference'], out_dir)
+    commands, out_files = _generate_commands(files['tgz'], reference, out_dir)
 
     # writing the job array details
     details_name = join(out_dir, 'mpileup_consensus.array-details')
@@ -142,7 +145,7 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
     lines = ['#!/bin/bash',
              '#PBS -M qiita.help@gmail.com',
              f'#PBS -N {job_id}',
-             f'#PBS -l nodes=1',
+             '#PBS -l nodes=1',
              f'#PBS -l walltime={WALLTIME}',
              f'#PBS -l mem={MEMORY}',
              f'#PBS -o {out_dir}/{job_id}' + '_${PBS_ARRAYID}.log',

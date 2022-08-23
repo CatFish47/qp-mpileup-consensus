@@ -131,18 +131,18 @@ class SamtoolsMpileupTests(PluginTestCase):
 
         url = 'this-is-my-url'
 
-        main_qsub_fp, finish_qsub_fp, out_files_fp = mpileup_consensus_to_array(
+        main_qsub_fp, fin_qsub_fp, out_files_fp = mpileup_consensus_to_array(
             artifact_info['files'], out_dir, self.params, prep_file,
             url, job_id)
 
         od = partial(join, out_dir)
         self.assertEqual(od(f'{job_id}.qsub'), main_qsub_fp)
-        self.assertEqual(od(f'{job_id}.finish.qsub'), finish_qsub_fp)
+        self.assertEqual(od(f'{job_id}.finish.qsub'), fin_qsub_fp)
         self.assertEqual(od(f'{job_id}.out_files.tsv'), out_files_fp)
 
         with open(main_qsub_fp) as f:
             main_qsub = f.readlines()
-        with open(finish_qsub_fp) as f:
+        with open(fin_qsub_fp) as f:
             finish_qsub = f.readlines()
         with open(out_files_fp) as f:
             out_files = f.readlines()
@@ -220,7 +220,7 @@ class SamtoolsMpileupTests(PluginTestCase):
             f'--reference {QC_REFERENCE}covid-ref.fas '
             f'{apath}/{fname_2}.trimmed.sorted.bam | '
             f'ivar consensus -p {out_dir}/{fname_2}_consensus.fa '
-            '-m 10 -t 0.5 -n N\n',
+            '-m 10 -t 0.5 -n N',
         ]
         self.assertEqual(commands, exp_commands)
 
