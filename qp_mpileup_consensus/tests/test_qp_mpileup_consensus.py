@@ -18,7 +18,8 @@ from functools import partial
 from qp_mpileup_consensus import plugin
 from qp_mpileup_consensus.utils import plugin_details
 from qp_mpileup_consensus.qp_mpileup_consensus import (
-    get_ref, _generate_commands, mpileup_consensus_to_array, QC_REFERENCE, COMBINED_CMD)
+    get_ref, _generate_commands, mpileup_consensus_to_array,
+    QC_REFERENCE, COMBINED_CMD)
 
 
 class SamtoolsMpileupTests(PluginTestCase):
@@ -83,15 +84,18 @@ class SamtoolsMpileupTests(PluginTestCase):
         in_dir = mkdtemp()
         self._clean_up_files.append(in_dir)
 
+        fname_1 = 'CALM_SEP_001974_81_S382_L002'
+        fname_2 = 'CALM_SEP_001974_82_S126_L001'
+
         sb_1 = join(
-            in_dir, 'CALM_SEP_001974_81_S382_L002.trimmed.sorted.bam.gz')
+            in_dir, f'{fname_1}.trimmed.sorted.bam.gz')
         sb_2 = join(
-            in_dir, 'CALM_SEP_001974_82_S126_L001.trimmed.sorted.bam.gz')
-        source_dir = 'qp_samtools_sort/support_files/raw_data'
+            in_dir, f'{fname_2}.trimmed.sorted.bam.gz')
+        source_dir = 'qp_mpileup_consensus/support_files/raw_data'
         copyfile(
-            f'{source_dir}/CALM_SEP_001974_81_S382_L002.trimmed.sorted.bam.gz', sb_1)
+            f'{source_dir}/{fname_1}.trimmed.sorted.bam.gz', sb_1)
         copyfile(
-            f'{source_dir}/CALM_SEP_001974_82_S126_L001.trimmed.sorted.bam.gz', sb_2)
+            f'{source_dir}/{fname_2}.trimmed.sorted.bam.gz', sb_2)
 
         data = {
             'filepaths': dumps([
@@ -159,13 +163,15 @@ class SamtoolsMpileupTests(PluginTestCase):
             '#PBS -l epilogue=/home/qiita/qiita-epilogue.sh\n',
             'set -e\n',
             f'cd {out_dir}\n',
-            'source /home/runner/.profile; conda activate qp-mpileup-consensus; '
+            'source /home/runner/.profile; '
+            'conda activate qp-mpileup-consensus; '
             f'export QC_REFERENCE={QC_REFERENCE}\n',
             'date\n',
             'hostname\n',
             'echo ${PBS_JOBID} ${PBS_ARRAYID}\n',
             'offset=${PBS_ARRAYID}\n', 'step=$(( $offset - 0 ))\n',
-            f'cmd=$(head -n $step {out_dir}/mpileup_consensus.array-details | '
+            f'cmd=$(head -n $step {out_dir}/'
+            'mpileup_consensus.array-details | '
             'tail -n 1)\n',
             'eval $cmd\n',
             'set +e\n',
@@ -184,32 +190,38 @@ class SamtoolsMpileupTests(PluginTestCase):
             '#PBS -l epilogue=/home/qiita/qiita-epilogue.sh\n',
             'set -e\n',
             f'cd {out_dir}\n',
-            'source /home/runner/.profile; conda activate qp-mpileup-consensus; '
+            'source /home/runner/.profile; '
+            'conda activate qp-mpileup-consensus; '
             f'export QC_REFERENCE={QC_REFERENCE}\n',
             'date\n',
             'hostname\n',
             'echo $PBS_JOBID\n',
-            f'finish_qp_mpileup_consensus this-is-my-url {job_id} {out_dir}\n',
+            'finish_qp_mpileup_consensus this-is-my-url '
+            f'{job_id} {out_dir}\n',
             'date\n']
         self.assertEqual(finish_qsub, exp_finish_qsub)
 
         exp_out_files = [
-            f'{out_dir}/CALM_SEP_001974_81_S382_L002_consensus.fa\tFASTA\n',
-            f'{out_dir}/CALM_SEP_001974_82_S126_L001_consensus.fa\tFASTA']
+            f'{out_dir}/{fname_1}_consensus.fa\tFASTA\n',
+            f'{out_dir}/{fname_2}_consensus.fa\tFASTA']
         self.assertEqual(out_files, exp_out_files)
 
         # the easiest to figure out the location of the artifact input files
         # is to check the first file of the raw forward reads
         apath = dirname(artifact_info['files']['tgz'][0])
         exp_commands = [
-            f'gunzip {apath}/CALM_SEP_001974_81_S382_L002.trimmed.sorted.bam.gz; '
-            f'samtools mpileup -A -aa -d 0 -Q 0 --reference {QC_REFERENCE}covid-ref.fas '
-            f'{apath}/CALM_SEP_001974_81_S382_L002.trimmed.sorted.bam | '
-            f'ivar consensus -p {out_dir}/CALM_SEP_001974_81_S382_L002_consensus.fa -m 10 -t 0.5 -n N\n',
-            f'gunzip {apath}/CALM_SEP_001974_82_S126_L001.trimmed.sorted.bam.gz; '
-            f'samtools mpileup -A -aa -d 0 -Q 0 --reference {QC_REFERENCE}covid-ref.fas '
-            f'{apath}/CALM_SEP_001974_82_S126_L001.trimmed.sorted.bam | '
-            f'ivar consensus -p {out_dir}/CALM_SEP_001974_82_S126_L001_consensus.fa -m 10 -t 0.5 -n N\n',
+            f'gunzip {apath}/{fname_1}.trimmed.sorted.bam.gz; '
+            f'samtools mpileup -A -aa -d 0 -Q 0 '
+            f'--reference {QC_REFERENCE}covid-ref.fas '
+            f'{apath}/{fname_1}.trimmed.sorted.bam | '
+            f'ivar consensus -p {out_dir}/{fname_1}_consensus.fa '
+            '-m 10 -t 0.5 -n N\n',
+            f'gunzip {apath}/{fname_2}.trimmed.sorted.bam.gz; '
+            f'samtools mpileup -A -aa -d 0 -Q 0 '
+            f'--reference {QC_REFERENCE}covid-ref.fas '
+            f'{apath}/{fname_2}.trimmed.sorted.bam | '
+            f'ivar consensus -p {out_dir}/{fname_2}_consensus.fa '
+            '-m 10 -t 0.5 -n N\n',
         ]
         self.assertEqual(commands, exp_commands)
 
