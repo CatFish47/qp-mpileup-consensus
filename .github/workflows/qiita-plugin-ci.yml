@@ -77,12 +77,17 @@ jobs:
         shell: bash -l {0}
         run: |
           conda config --add channels bioconda
-          conda create --yes -n qp-mpileup-consensus -c bioconda samtools=1.6 ivar=1.3.1 python=3.7
-          conda activate qp-mpileup-consensus
 
+          conda create -q --yes -n qtp-bam python=3.9 pip pigz quast fqtools
+          conda activate qtp-bam
           export QIITA_SERVER_CERT=`pwd`/qiita-dev/qiita_core/support_files/server.crt
           export QIITA_CONFIG_FP=`pwd`/qiita-dev/qiita_core/support_files/config_test_local.cfg
           pip --quiet install -U pip
+          pip install https://github.com/CatFish47/qtp-bam/archive/master.zip
+          configure_qtp_bam --env-script "source /home/runner/.profile; conda activate qtp-bam" --server-cert $QIITA_SERVER_CERT
+
+          conda create --yes -n qp-mpileup-consensus -c bioconda samtools=1.6 ivar=1.3.1 python=3.7
+          conda activate qp-mpileup-consensus
           pip --quiet install .
           pip --quiet install coveralls
 
@@ -92,6 +97,7 @@ jobs:
           samtools_version=`samtools --version`
           ivar_version=`ivar version`
           if [[ $samtools_version != *"1.6"* ]]; then echo "wrong samtools version", $samtools_version; exit 1; fi
+          if [[ $ivar_version != *"1.3.1"* ]]; then echo "wrong ivar version", $ivar_version; exit 1; fi
 
           configure_qp_mpileup_consensus --env-script "source /home/runner/.profile; conda activate qp-mpileup-consensus; export QC_REFERENCE=${PWD}/qp_mpileup_consensus/support_files/references/; export ENVIRONMENT='source /home/runner/.profile; source activate qp-mpileup-consensus; export QC_REFERENCE=${PWD}/qp_mpileup_consensus/support_files/references/'" --server-cert $QIITA_SERVER_CERT
 
