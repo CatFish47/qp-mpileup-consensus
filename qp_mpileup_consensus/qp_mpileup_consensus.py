@@ -138,11 +138,11 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
     n_jobs = len(commands)
 
     # all the setup pieces
-    PPN = params['threads']
+    # PPN = params['threads']
     lines = ['#!/bin/bash',
              '#PBS -M qiita.help@gmail.com',
              f'#PBS -N {job_id}',
-             f'#PBS -l nodes=1:ppn={PPN}',
+             f'#PBS -l nodes=1',
              f'#PBS -l walltime={WALLTIME}',
              f'#PBS -l mem={MEMORY}',
              f'#PBS -o {out_dir}/{job_id}' + '_${PBS_ARRAYID}.log',
@@ -170,7 +170,7 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
     lines = ['#!/bin/bash',
              '#PBS -M qiita.help@gmail.com',
              f'#PBS -N finish-{job_id}',
-             '#PBS -l nodes=1:ppn=1',
+             '#PBS -l nodes=1',
              f'#PBS -l walltime={FINISH_WALLTIME}',
              f'#PBS -l mem={FINISH_MEMORY}',
              f'#PBS -o {out_dir}/finish-{job_id}.log',
