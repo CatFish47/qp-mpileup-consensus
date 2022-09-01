@@ -83,7 +83,7 @@ jobs:
           export QIITA_SERVER_CERT=`pwd`/qiita-dev/qiita_core/support_files/server.crt
           export QIITA_CONFIG_FP=`pwd`/qiita-dev/qiita_core/support_files/config_test_local.cfg
           pip --quiet install -U pip
-          pip install https://github.com/CatFish47/qtp-bam/archive/master.zip
+          pip install https://github.com/tedd-E/qtp-bam/archive/master.zip
           configure_qtp_bam --env-script "source /home/runner/.profile; conda activate qtp-bam" --server-cert $QIITA_SERVER_CERT
 
           conda create --yes -n qp-mpileup-consensus -c bioconda samtools=1.6 ivar=1.3.1 python=3.7

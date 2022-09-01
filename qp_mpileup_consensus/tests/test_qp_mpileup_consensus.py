@@ -50,19 +50,14 @@ class SamtoolsMpileupTests(PluginTestCase):
         params = {'reference': 'covid-ref',
                   'out_dir': '/foo/bar/output'}
 
-        # fwd_seqs = ['sz1.fastq.gz', 'sc1.fastq.gz',
-        #             'sa1.fastq.gz', 'sd1.fastq.gz']
-        # rev_seqs = ['sz2.fastq.gz', 'sc2.fastq.gz',
-        #             'sa2.fastq.gz', 'sd2.fastq.gz']
         trimmed_sorted_bams = ['trimmed1.sorted.bam', 'trimmed2.sorted.bam']
         obs = _generate_commands(trimmed_sorted_bams, params['reference'],
                                  params['out_dir'])
         cmd = COMBINED_CMD.format(**params)
         ecmds = []
-        for bam_gz in trimmed_sorted_bams:
-            bam = bam_gz[:-3]
-            fname = "%s_consensus.fa" % bam_gz.split(".")[0]
-            ecmds.append(cmd % (bam_gz, bam, fname))
+        for bam in trimmed_sorted_bams:
+            fname = "%s_consensus.fa" % bam.split(".")[0]
+            ecmds.append(cmd % (bam, fname))
         eof = []
         for bam in trimmed_sorted_bams:
             fname = "%s_consensus.fa" % bam.split(".")[0]
@@ -90,19 +85,19 @@ class SamtoolsMpileupTests(PluginTestCase):
         fname_2 = 'CALM_SEP_001974_82_S126_L001'
 
         sb_1 = join(
-            in_dir, f'{fname_1}.trimmed.sorted.bam.gz')
+            in_dir, f'{fname_1}.trimmed.sorted.bam')
         sb_2 = join(
-            in_dir, f'{fname_2}.trimmed.sorted.bam.gz')
+            in_dir, f'{fname_2}.trimmed.sorted.bam')
         source_dir = 'qp_mpileup_consensus/support_files/raw_data'
         copyfile(
-            f'{source_dir}/{fname_1}.trimmed.sorted.bam.gz', sb_1)
+            f'{source_dir}/{fname_1}.trimmed.sorted.bam', sb_1)
         copyfile(
-            f'{source_dir}/{fname_2}.trimmed.sorted.bam.gz', sb_2)
+            f'{source_dir}/{fname_2}.trimmed.sorted.bam', sb_2)
 
         data = {
             'filepaths': dumps([
-                (sb_1, 'tgz'),
-                (sb_2, 'tgz')]),
+                (sb_1, 'bam'),
+                (sb_2, 'bam')]),
             'type': "BAM",
             'name': "Test artifact",
             'prep': pid}
@@ -210,15 +205,13 @@ class SamtoolsMpileupTests(PluginTestCase):
 
         # the easiest to figure out the location of the artifact input files
         # is to check the first file of the raw forward reads
-        apath = dirname(artifact_info['files']['tgz'][0])
+        apath = dirname(artifact_info['files']['bam'][0])
         exp_commands = [
-            f'gunzip {apath}/{fname_1}.trimmed.sorted.bam.gz; '
             f'samtools mpileup -A -aa -d 0 -Q 0 '
             f'--reference {QC_REFERENCE}covid-ref.fas '
             f'{apath}/{fname_1}.trimmed.sorted.bam | '
             f'ivar consensus -p {out_dir}/{fname_1}_consensus.fa '
             '-m 10 -t 0.5 -n N\n',
-            f'gunzip {apath}/{fname_2}.trimmed.sorted.bam.gz; '
             f'samtools mpileup -A -aa -d 0 -Q 0 '
             f'--reference {QC_REFERENCE}covid-ref.fas '
             f'{apath}/{fname_2}.trimmed.sorted.bam | '

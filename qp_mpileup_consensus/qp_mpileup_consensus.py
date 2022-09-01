@@ -23,10 +23,10 @@ QC_REFERENCE = environ["QC_REFERENCE"]
 
 # SAMTOOLS_CMD = 'samtools mpileup -A -aa -d 0 -Q 0
 # --reference {reference} %s > {out_dir}/%s'
-GUNZIP_CMD = 'gunzip %s'
+# GUNZIP_CMD = 'gunzip %s'
 SAMTOOLS_BASE = 'samtools mpileup -A -aa -d 0 -Q 0 --reference {reference} %s'
 IVAR_BASE = 'ivar consensus -p {out_dir}/%s -m 10 -t 0.5 -n N'
-COMBINED_CMD = f'{GUNZIP_CMD}; {SAMTOOLS_BASE} | {IVAR_BASE}'
+COMBINED_CMD = f'{SAMTOOLS_BASE} | {IVAR_BASE}'
 
 
 def get_ref():
@@ -45,13 +45,11 @@ def _generate_commands(trimmed_sorted_bams, reference, out_dir):
     out_files = []
     commands = []
 
-    for bam_gz in files:
-        fname_gz = basename(bam_gz)
-        fname = "%s_consensus.fa" % fname_gz.split(".")[0]
-        bam = bam_gz[:-3]
+    for bam in files:
+        fname = "%s_consensus.fa" % basename(bam).split(".")[0]
         out_files.append((f'{out_dir}/{fname}', 'FASTA'))
 
-        cmd = command % (bam_gz, bam, fname)
+        cmd = command % (bam, fname)
         commands.append(cmd)
 
     return commands, out_files
@@ -92,7 +90,7 @@ def mpileup_consensus(qclient, job_id, parameters, out_dir):
     # Step 4 generating artifacts
     msg = "Step 4 of 4: Generating new artifact"
     qclient.update_job_step(job_id, msg)
-    ainfo = [ArtifactInfo('Pileup files', 'BAM', out_files)]
+    ainfo = [ArtifactInfo('Consensus files', 'FASTA', out_files)]
 
     return True, ainfo, ""
 
@@ -134,7 +132,7 @@ def mpileup_consensus_to_array(files, out_dir, params, prep_info, url, job_id):
     # Note that for processing we don't actually need the run_prefix so
     # we are not going to use it and simply loop over the ordered
     # fwd_seqs/rev_seqs
-    commands, out_files = _generate_commands(files['tgz'], reference, out_dir)
+    commands, out_files = _generate_commands(files['bam'], reference, out_dir)
 
     # writing the job array details
     details_name = join(out_dir, 'mpileup_consensus.array-details')
